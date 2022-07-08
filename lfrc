@@ -1,43 +1,82 @@
-set previewer ~/.config/lf/preview
-set cleaner ~/.config/lf/cleaner
+ lf file manager config file
 
+# Settings
+set cleaner ~/.config/lf/cleaner
+set previewer ~/.config/lf/preview
+set preview true
+
+set drawbox true
+set icons true
 set ratios 1:2:3
 
-# Basic Settings
-set preview true
 set hidden true
 set ignorecase true
-set icons true
-set drawbox true
-set ignorecase true
-#set color256 true
 
-# Bindings
-# Remove some defaults
-map m
-map o
-map n
-map "'"
-map '"'
-map d
+# Functions
+cmd q :quit
+cmd wq :quit
+cmd wqa :quit
+cmd x :quit
+cmd xa :quit
 
+cmd find_files ${{
+	printf "File name: "
+	read name
+  temp=$(sudo find / -iname $name)
+  echo $temp | fzf
+}}
+
+map f :find_files
+
+# find files with fzf
+cmd fzf_jump ${{
+	dirs="$(find . -maxdepth 3 | fzf --header='Jump to:')"
+	if [ -f "$dirs" ]; then
+		cmd="select"
+	elif [ -d "$dirs" ]; then
+		cmd="cd"
+	fi
+  lf -remote "send $id $cmd \"$dirs\""
+}}
+
+map <space>
+map <space>ff :fzf_jump
+
+# create a new file with path
+cmd create_file ${{
+  printf "File name: "
+  read name
+
+  last_char="$(echo "${name:${#name}-1:1}")"
+  if [[ $last_char == "/" ]]; then
+    mkdir -p $name
+    exit
+  fi
+
+  if echo "$name" | grep -q "/"; then
+    mkdir -p $(sed 's/\(.*\)\/.*/\1/' <<< $name) && touch $name 
+    exit
+  fi
+
+  touch $name
+}}
+
+map a :create_file
+
+# Mappings
+
+# open file in vscode
 map c $code "$f"
 
-map au unarchive
-map ae execute
+# open file in default editor ($EDITOR variable)
+map e $$EDITOR "$f"
 
-# Basic Functions
-map . set hidden!
-map DD delete
-map p paste
-map x cut
-map y copy
-map <enter> open
-map R reload
-map mf mkfile
-map md mkdir
-map bg setwallpaper
-map C clear
+# open file in default gui editor ($VISUAL variable)
+map v $$VISUAL "$f"
 
-map dd trash
-map dr restore_trash
+map d
+
+map dd $trash-put "$f"
+map dr $trash-restore
+
+map <enter> :toggle
