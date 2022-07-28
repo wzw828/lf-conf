@@ -1,16 +1,17 @@
- lf file manager config file
+#  lf file manager config file
 
 # Settings
 set cleaner ~/.config/lf/cleaner
 set previewer ~/.config/lf/preview
 set preview true
 
-set drawbox true
+# set drawbox true
 set icons true
 set ratios 1:2:3
 
-set hidden true
 set ignorecase true
+# set hidden true
+map <backspace> :set hidden!
 
 # Functions
 cmd q :quit
@@ -63,6 +64,13 @@ cmd create_file ${{
 
 map a :create_file
 
+cmd set_wallpaper ${{
+  nitrogen --set-zoom-fill "$f"
+  # wal -q -i "$f"
+}}
+
+map <c-w> :set_wallpaper
+
 # Mappings
 
 # open file in vscode
@@ -80,3 +88,4 @@ map dd $trash-put "$f"
 map dr $trash-restore
 
 map <enter> :toggle
+map <backspace2> :unselect
